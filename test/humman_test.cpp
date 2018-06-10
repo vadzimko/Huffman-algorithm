@@ -21,6 +21,8 @@ bool check_equal(std::string const &file, std::string const &encoded_decoded) {
     if (first_input == -1 || second_input == -1 || first_input != second_input) {
         return false;
     }
+    first.seekg(0, std::ios::beg);
+    second.seekg(0, std::ios::beg);
 
     unsigned long long size = static_cast<unsigned long long int>(first_input);
     while (BUFFER_SIZE <= size) {
@@ -63,7 +65,7 @@ TEST(correctness, checking_medium) {
 
     EXPECT_TRUE(encode_decode_file("../test_files/bible.txt"));
 }
-//
+
 //TEST(correctness, checking_big) {
 //
 //    EXPECT_TRUE(encode_decode_file("../test_files/test.txt"));
