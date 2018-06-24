@@ -56,6 +56,24 @@ TEST(correctness, checking_empty) {
     EXPECT_TRUE(encode_decode_file("../test_files/empty.txt"));
 }
 
+TEST(correctness, checking_broken) {
+    try {
+        arch.decode("../test_files/empty.txt", decoded);
+    } catch (std::runtime_error e) {
+        std::string err_msg(e.what(), strlen(e.what()));
+        EXPECT_TRUE(err_msg == "File broken");
+    }
+}
+
+TEST(correctness, checking_broken2) {
+    try {
+        arch.decode("../test_files/white_broken.huff", decoded);
+    } catch (std::runtime_error e) {
+        std::string err_msg(e.what(), strlen(e.what()));
+        EXPECT_TRUE(err_msg == "File broken");
+    }
+}
+
 TEST(correctness, checking_small) {
 
     EXPECT_TRUE(encode_decode_file("../test_files/simple.txt"));
@@ -80,7 +98,7 @@ TEST(correctness, checking_cool_photo) {
 
     EXPECT_TRUE(encode_decode_file("../test_files/tanos.jpg"));
 }
-//
+
 //TEST(correctness, checking_big_pdf) {
 //
 //    EXPECT_TRUE(encode_decode_file("../test_files/book.pdf"));

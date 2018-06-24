@@ -84,6 +84,8 @@ void Huffman_tree::set_codes() {
         std::queue<std::pair<Node *, bit_seq>> q;
         q.push({root, bit_seq()});
         while (!q.empty()) {
+            if (q.size() > 1000)
+                throw std::runtime_error("File broken");
             Node *node = q.front().first;
             bit_seq node_code = q.front().second;
             q.pop();

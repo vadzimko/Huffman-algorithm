@@ -82,7 +82,6 @@ void archiver::encode(std::string const &file_in, std::string const &file_out) {
 }
 
 void archiver::decode(std::string const &file_in, std::string const &file_out) {
-    long long time = clock();
     fin.open(file_in, std::ios::binary | std::ios::ate);
     std::ifstream::pos_type pos_input = fin.tellg();
 
@@ -93,7 +92,7 @@ void archiver::decode(std::string const &file_in, std::string const &file_out) {
     try {
         fout.open(file_out, std::ios::binary);
 
-        unsigned long long input_size = static_cast<unsigned long long int>(pos_input);
+        long long input_size = static_cast<long long int>(pos_input);
         if (input_size == 0) {
             fin.close();
             fout.close();
@@ -106,6 +105,11 @@ void archiver::decode(std::string const &file_in, std::string const &file_out) {
         Huffman_tree tree;
         fin.read(buffer, dictionary_size);
         bit_seq dictionary;
+
+        if (input_size < dictionary_size + 2) {
+            throw std::runtime_error("File broken");
+        }
+
         for (size_t i = 0; i < dictionary_size; i++) {
             dictionary.push_back((uint8_t) buffer[i]);
         }
@@ -119,14 +123,18 @@ void archiver::decode(std::string const &file_in, std::string const &file_out) {
                                      (uint32_t) (uint8_t) buffer[1] << 8) +
                                     (uint32_t) (uint8_t) buffer[2] << 8) +
                                    (uint32_t) (uint8_t) buffer[3];
-
             fin.read(buffer, buffer_size);
+            input_size -= buffer_size + 4;
+
+            if ((uint8_t) buffer[0] > 8 || input_size < 0) {
+                throw std::runtime_error("File broken");
+            }
+
             bit_seq data;
             for (size_t i = 1; i < buffer_size; i++) {
                 data.push_back((uint8_t) buffer[i]);
             }
             fout << tree.decode(data, (buffer_size - 2) * 8 + (uint8_t) buffer[0]);
-            input_size -= buffer_size + 4;
         }
 
         fout.close();
